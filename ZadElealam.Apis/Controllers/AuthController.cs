@@ -140,9 +140,6 @@ namespace ZadElealam.Apis.Controllers
 
             return BadRequest(response);
         }
-
-
-
         private string GenerateCallBackUrl(string token, string userId)
         {
             var encodedToken = Uri.EscapeDataString(token);

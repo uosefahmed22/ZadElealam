@@ -11,6 +11,8 @@ using ZadElealam.Repository.Services;
 using ZadElealam.Core.Models.Auth;
 using ZadElealam.Core.Errors;
 using Microsoft.AspNetCore.Mvc;
+using ZadElealam.Core.IServices;
+using ZadElealam.Apis.Helpers;
 
 namespace ZadElealam.Apis.Extentions
 {
@@ -57,18 +59,43 @@ namespace ZadElealam.Apis.Extentions
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<AppDbContext>();
 
-            services.AddControllers();
+            //services.AddControllers().AddJsonOptions(options =>
+            //{
+            //    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+            //    options.JsonSerializerOptions.WriteIndented = true;
+            //});
+
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                options.JsonSerializerOptions.WriteIndented = true;
+            });
+
+
             services.AddEndpointsApiExplorer();
 
             // Configure Swagger using the extension method
             services.AddSwaggerDocumentation();
             // Add Memory Cache
             services.AddMemoryCache();
+            //configure Auto Mapper
+            services.AddAutoMapper(typeof(MappingProfile));
+            //Cloudinary Configuration
+            services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySetting"));
+
+            services.AddSingleton(cloudinary =>
+            {
+                var config = configuration.GetSection("CloudinarySetting").Get<CloudinarySettings>();
+                var account = new CloudinaryDotNet.Account(config.CloudName, config.ApiKey, config.ApiSecret);
+                return new CloudinaryDotNet.Cloudinary(account);
+            });
 
             // Add custom services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<IOtpService, OtpService>();
+            services.AddScoped<IYoutubePlaylistsServices, YoutubePlaylistsServices>();
+            services.AddScoped<IImageService, ImageService>();
             // Configure CORS using the extension method
             services.ConfigureCors();
 
@@ -97,7 +124,6 @@ namespace ZadElealam.Apis.Extentions
                 };
             });
         }
-
         public static void ConfigureCors(this IServiceCollection services)
         {
             services.AddCors(options =>
@@ -110,7 +136,6 @@ namespace ZadElealam.Apis.Extentions
                 });
             });
         }
-
         public static void AddSwaggerDocumentation(this IServiceCollection services)
         {
             services.AddSwaggerGen(c =>

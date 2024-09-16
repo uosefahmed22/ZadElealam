@@ -12,7 +12,7 @@ using ZadElealam.Repository;
 namespace ZadElealam.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240915072737_initialMigration")]
+    [Migration("20240915125631_initialMigration")]
     partial class initialMigration
     {
         /// <inheritdoc />
@@ -158,7 +158,7 @@ namespace ZadElealam.Repository.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ZadElealam.Core.Models.AppUser", b =>
+            modelBuilder.Entity("ZadElealam.Core.Models.Auth.AppUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -227,7 +227,7 @@ namespace ZadElealam.Repository.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("ZadElealam.Core.Models.RefreshToken", b =>
+            modelBuilder.Entity("ZadElealam.Core.Models.Auth.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -267,6 +267,82 @@ namespace ZadElealam.Repository.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("ZadElealam.Core.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.YouTubePlaylist", b =>
+                {
+                    b.Property<int>("YouTubePlaylistId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("YouTubePlaylistId"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlaylistId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PublishedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("YouTubePlaylistId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("YouTubePlaylists");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.YouTubeVideo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VideoUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("YouTubePlaylistId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("YouTubePlaylistId");
+
+                    b.ToTable("YouTubeVideos");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -278,7 +354,7 @@ namespace ZadElealam.Repository.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("ZadElealam.Core.Models.AppUser", null)
+                    b.HasOne("ZadElealam.Core.Models.Auth.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -287,7 +363,7 @@ namespace ZadElealam.Repository.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("ZadElealam.Core.Models.AppUser", null)
+                    b.HasOne("ZadElealam.Core.Models.Auth.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -302,7 +378,7 @@ namespace ZadElealam.Repository.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ZadElealam.Core.Models.AppUser", null)
+                    b.HasOne("ZadElealam.Core.Models.Auth.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -311,11 +387,43 @@ namespace ZadElealam.Repository.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("ZadElealam.Core.Models.AppUser", null)
+                    b.HasOne("ZadElealam.Core.Models.Auth.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.YouTubePlaylist", b =>
+                {
+                    b.HasOne("ZadElealam.Core.Models.Category", "Category")
+                        .WithMany("Playlists")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.YouTubeVideo", b =>
+                {
+                    b.HasOne("ZadElealam.Core.Models.YouTubePlaylist", "Playlist")
+                        .WithMany("Videos")
+                        .HasForeignKey("YouTubePlaylistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Playlist");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.Category", b =>
+                {
+                    b.Navigation("Playlists");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.YouTubePlaylist", b =>
+                {
+                    b.Navigation("Videos");
                 });
 #pragma warning restore 612, 618
         }

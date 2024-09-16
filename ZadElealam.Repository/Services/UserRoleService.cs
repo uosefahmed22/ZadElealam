@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Math.EC.Rfc7748;
@@ -7,8 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZadElealam.Core.Dto;
 using ZadElealam.Core.Errors;
 using ZadElealam.Core.Interfaces;
+using ZadElealam.Core.IServices;
 using ZadElealam.Core.Models.Auth;
 
 namespace ZadElealam.Repository.Services
@@ -18,14 +21,50 @@ namespace ZadElealam.Repository.Services
         private readonly AppDbContext _dbContext;
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IImageService _imageService;
 
         public UserRoleService(AppDbContext dbContext,
             UserManager<AppUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IImageService imageService)
         {
             _dbContext = dbContext;
             _userManager = userManager;
             _roleManager = roleManager;
+            _imageService = imageService;
+        }
+
+        public async Task<ApiResponse> AddProfileImage(IFormFile? image, string? ImageUrl, string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return new ApiResponse(404, "المستخدم غير موجود");
+            }
+
+            if (image == null)
+            {
+                if (!string.IsNullOrEmpty(user.ImageUrl))
+                {
+                    await _imageService.DeleteImageAsync(user.ImageUrl);
+                    user.ImageUrl = null;
+                    await _userManager.UpdateAsync(user);
+                }
+                return new ApiResponse(200, "تم حذف الصورة بنجاح");
+            }
+
+            var fileResult = await _imageService.UploadImageAsync(image);
+            if (fileResult.Item1 == 1)
+            {
+                user.ImageUrl = fileResult.Item2;
+                await _userManager.UpdateAsync(user);
+            }
+            else
+            {
+                return new ApiResponse(400, fileResult.Item2);
+            }
+
+            return new ApiResponse(200, "تم اضافة الصورة بنجاح");
         }
         public async Task<ApiResponse> AddUserToRole(string email, string roleName)
         {
@@ -76,7 +115,7 @@ namespace ZadElealam.Repository.Services
             {
                 return new ApiResponse(200, "تم حذف الصلاحية بنجاح");
             }
-            return new ApiResponse(400,"فشل في حذف الصلاحية");
+            return new ApiResponse(400, "فشل في حذف الصلاحية");
         }
         public async Task<IEnumerable<string>> GetRolesAsync()
         {
@@ -92,6 +131,23 @@ namespace ZadElealam.Repository.Services
                 return null;
             }
             return await _userManager.GetRolesAsync(user);
+        }
+        public async Task<ApiResponse> GetUser(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return new ApiResponse(404, "المستخدم غير موجود");
+            }
+
+            var userDto = new UserDto
+            {
+                Email = user.Email,
+                FullName = user.FullName,
+                ImageUrl = user.ImageUrl
+            };
+
+            return new ApiResponse(200,"", userDto);
         }
         public async Task<IEnumerable<string>> GetUsers()
         {

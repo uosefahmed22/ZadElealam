@@ -52,6 +52,19 @@ namespace ZadElealam.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RefreshTokens",
                 columns: table => new
                 {
@@ -177,6 +190,50 @@ namespace ZadElealam.Repository.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "YouTubePlaylists",
+                columns: table => new
+                {
+                    YouTubePlaylistId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PlaylistId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PublishedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_YouTubePlaylists", x => x.YouTubePlaylistId);
+                    table.ForeignKey(
+                        name: "FK_YouTubePlaylists_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "YouTubeVideos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    VideoUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    YouTubePlaylistId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_YouTubeVideos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_YouTubeVideos_YouTubePlaylists_YouTubePlaylistId",
+                        column: x => x.YouTubePlaylistId,
+                        principalTable: "YouTubePlaylists",
+                        principalColumn: "YouTubePlaylistId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -215,6 +272,16 @@ namespace ZadElealam.Repository.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_YouTubePlaylists_CategoryId",
+                table: "YouTubePlaylists",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_YouTubeVideos_YouTubePlaylistId",
+                table: "YouTubeVideos",
+                column: "YouTubePlaylistId");
         }
 
         /// <inheritdoc />
@@ -239,10 +306,19 @@ namespace ZadElealam.Repository.Migrations
                 name: "RefreshTokens");
 
             migrationBuilder.DropTable(
+                name: "YouTubeVideos");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "YouTubePlaylists");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
         }
     }
 }

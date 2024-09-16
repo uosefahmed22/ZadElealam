@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Security.Claims;
 using ZadElealam.Core.Interfaces;
 using ZadElealam.Core.Models.Auth;
 using ZadElealam.Repository;
@@ -12,7 +13,7 @@ namespace ZadElealam.Apis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
 
     public class UserRoleController : ControllerBase
     {
@@ -75,5 +76,22 @@ namespace ZadElealam.Apis.Controllers
             var roles =await _userRoleService.GetRolesByUser(email);
             return Ok(roles);
         }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpPatch("AddProfileImage")]
+        public async Task<IActionResult> AddProfileImage([FromForm] IFormFile image)
+        {
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            var result = await _userRoleService.AddProfileImage(image, null, email);
+            return Ok(result);
+        }
+        [HttpGet("GetUser")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        public async Task<IActionResult> GetUser()
+        {
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            var result = await _userRoleService.GetUser(email);
+            return Ok(result);
+        }
+
     }
 }
