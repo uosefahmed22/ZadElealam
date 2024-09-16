@@ -18,6 +18,7 @@ namespace ZadElealam.Core.Models
         public TimeSpan Duration { get; set; }
         public int PlaylistId { get; set; }
         public YouTubePlaylist Playlist { get; set; }
+        public ICollection<StudentVideoProgress> StudentProgresses { get; set; }
     }
 
 }

@@ -52,5 +52,17 @@ namespace ZadElealam.Apis.Controllers
             var response = await _playlistRepository.DeletePlaylistAsync(playlistId);
             return Ok(response);
         }
+
+        [HttpPost("updatevideoprogress")]
+        public async Task<IActionResult> UpdateVideoProgress([FromBody] UpdateVideoProgressRequest updateVideoProgressRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var response = await _playlistRepository.UpdateVideoProgressAsync(updateVideoProgressRequest.StudentId, updateVideoProgressRequest.VideoId, updateVideoProgressRequest.WatchedDuration);
+            return Ok(response);
+        }
+
     }
 }

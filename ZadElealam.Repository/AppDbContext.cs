@@ -19,6 +19,7 @@ namespace ZadElealam.Repository
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<YouTubePlaylist> YouTubePlaylists { get; set; }
         public DbSet<YouTubeVideo> YouTubeVideos { get; set; }
+        public DbSet<StudentVideoProgress> StudentVideoProgresses { get; set; }
         public DbSet<Category> Categories { get; set; }
     }
 }

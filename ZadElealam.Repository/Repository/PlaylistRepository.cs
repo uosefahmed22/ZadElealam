@@ -130,6 +130,23 @@ namespace ZadElealam.Repository.Repository
             await _context.SaveChangesAsync();
             return new ApiResponse(200, "تم حذف قائمة التشغيل بنجاح.");
         }
+        public async Task<ApiResponse> UpdateVideoProgressAsync(string studentId, int videoId, TimeSpan watchedDuration)
+        {
+            var video = await _context.YouTubeVideos.FindAsync(videoId);
+            if (video == null)
+            {
+                return new ApiResponse(404, "الفيديو غير موجود.");
+            }
+
+            if (watchedDuration > video.Duration)
+            {
+                return new ApiResponse(400, "المدة المشاهدة أكبر من مدة الفيديو.");
+            }
+            await UpdateProgress(studentId, videoId, watchedDuration);
+            return new ApiResponse(200, "تم تحديث التقدم بنجاح.");
+        }
+
+
 
 
         private string ExtractYouTubePlaylistId(string playlistUrl)
@@ -153,6 +170,34 @@ namespace ZadElealam.Repository.Repository
                 Videos = videos.Result,
                 ThumbnailUrl = videos.Result.FirstOrDefault()?.ThumbnailUrl
             };
+        }
+        private async Task UpdateProgress(string studentId, int videoId, TimeSpan watchedDuration)
+        {
+            var progress = await _context.StudentVideoProgresses
+                .FirstOrDefaultAsync(p => p.StudentId == studentId && p.VideoId == videoId);
+
+            if (progress == null)
+            {
+                progress = new StudentVideoProgress
+                {
+                    StudentId = studentId,
+                    VideoId = videoId,
+                    WatchedDuration = watchedDuration,
+                    IsCompleted = false
+                };
+                _context.StudentVideoProgresses.Add(progress);
+            }
+            else
+            {
+                progress.WatchedDuration = watchedDuration;
+                if (watchedDuration >= progress.Video.Duration * 0.9)
+                {
+                    progress.IsCompleted = true;
+                    progress.CompletionDate = DateTime.Now;
+                }
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -15,5 +15,6 @@ namespace ZadElealam.Core.IRepository
         Task<ApiResponse> GetPlaylistsByCategoryIdAsync(int categoryId);
         Task<ApiResponse> GetVideosByPlaylistIdAsync(int playlistId);
         Task<ApiResponse> DeletePlaylistAsync(int playlistId);
+        Task<ApiResponse> UpdateVideoProgressAsync(string studentId, int videoId, TimeSpan watchedDuration);
     }
 }
