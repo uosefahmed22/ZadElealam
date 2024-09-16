@@ -10,8 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using ZadElealam.Core.Dto;
 using ZadElealam.Core.Errors;
-using ZadElealam.Core.Interfaces;
 using ZadElealam.Core.IServices;
+using ZadElealam.Core.IServices.Auth;
 using ZadElealam.Core.Models.Auth;
 
 namespace ZadElealam.Repository.Services

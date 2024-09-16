@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
-using ZadElealam.Core.Interfaces;
+using ZadElealam.Core.IServices.Auth;
 using ZadElealam.Core.Models.Auth;
 using ZadElealam.Repository;
 

@@ -11,13 +11,12 @@ namespace ZadElealam.Core.Models
     public class YouTubeVideo
     {
         public int Id { get; set; }
-        public string VideoUrl { get; set; }
         public string Title { get; set; }
-        public string? ImageUrl { get; set; }
-        [NotMapped]
-        public IFormFile Image { get; set; }
-        [ForeignKey("YouTubePlaylistId")]
-        public int YouTubePlaylistId { get; set; }
+        public string Description { get; set; }
+        public string YouTubeVideoId { get; set; }
+        public string ThumbnailUrl { get; set; }
+        public TimeSpan Duration { get; set; }
+        public int PlaylistId { get; set; }
         public YouTubePlaylist Playlist { get; set; }
     }
 

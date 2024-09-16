@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using ZadElealam.Core.Errors;
 using ZadElealam.Core.Models.Auth;
 
-namespace ZadElealam.Core.Interfaces
+namespace ZadElealam.Core.IServices.Auth
 {
     public interface IAuthService
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZadElealam.Core.Interfaces
+namespace ZadElealam.Core.IServices.Auth
 {
     public interface IOtpService
     {

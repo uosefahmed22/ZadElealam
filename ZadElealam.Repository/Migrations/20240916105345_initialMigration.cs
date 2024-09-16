@@ -31,6 +31,7 @@ namespace ZadElealam.Repository.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -57,7 +58,9 @@ namespace ZadElealam.Repository.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -194,17 +197,16 @@ namespace ZadElealam.Repository.Migrations
                 name: "YouTubePlaylists",
                 columns: table => new
                 {
-                    YouTubePlaylistId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PlaylistId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PublishedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    YouTubePlaylistId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_YouTubePlaylists", x => x.YouTubePlaylistId);
+                    table.PrimaryKey("PK_YouTubePlaylists", x => x.Id);
                     table.ForeignKey(
                         name: "FK_YouTubePlaylists_Categories_CategoryId",
                         column: x => x.CategoryId,
@@ -219,18 +221,21 @@ namespace ZadElealam.Repository.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    VideoUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    YouTubePlaylistId = table.Column<int>(type: "int", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    YouTubeVideoId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ThumbnailUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Duration = table.Column<TimeSpan>(type: "time", nullable: false),
+                    PlaylistId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_YouTubeVideos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_YouTubeVideos_YouTubePlaylists_YouTubePlaylistId",
-                        column: x => x.YouTubePlaylistId,
+                        name: "FK_YouTubeVideos_YouTubePlaylists_PlaylistId",
+                        column: x => x.PlaylistId,
                         principalTable: "YouTubePlaylists",
-                        principalColumn: "YouTubePlaylistId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -279,9 +284,9 @@ namespace ZadElealam.Repository.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_YouTubeVideos_YouTubePlaylistId",
+                name: "IX_YouTubeVideos_PlaylistId",
                 table: "YouTubeVideos",
-                column: "YouTubePlaylistId");
+                column: "PlaylistId");
         }
 
         /// <inheritdoc />

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZadElealam.Core.Errors;
 
-namespace ZadElealam.Core.Interfaces
+namespace ZadElealam.Core.IServices.Auth
 {
     public interface IUserRoleService
     {
@@ -18,7 +18,7 @@ namespace ZadElealam.Core.Interfaces
         Task<ApiResponse> RemoveUserFromRole(string email, string roleName);
         Task<IEnumerable<string>> GetUsers();
         Task<IEnumerable<string>> GetRolesByUser(string email);
-        Task<ApiResponse> AddProfileImage(IFormFile? image, string? ImageUrl, string email); 
+        Task<ApiResponse> AddProfileImage(IFormFile? image, string? ImageUrl, string email);
         Task<ApiResponse> GetUser(string email);
     }
 }

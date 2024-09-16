@@ -6,13 +6,16 @@ using ZadElealam.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using ZadElealam.Core.Interfaces;
 using ZadElealam.Repository.Services;
 using ZadElealam.Core.Models.Auth;
 using ZadElealam.Core.Errors;
 using Microsoft.AspNetCore.Mvc;
 using ZadElealam.Core.IServices;
 using ZadElealam.Apis.Helpers;
+using ZadElealam.Core.IServices.Auth;
+using ZadElealam.Core.IRepository;
+using ZadElealam.Repository.Repository;
+using Google.Apis.YouTube.v3.Data;
 
 namespace ZadElealam.Apis.Extentions
 {
@@ -94,8 +97,9 @@ namespace ZadElealam.Apis.Extentions
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<IOtpService, OtpService>();
-            services.AddScoped<IYoutubePlaylistsServices, YoutubePlaylistsServices>();
+            services.AddScoped<IPlaylistRepository, PlaylistRepository>();
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
             // Configure CORS using the extension method
             services.ConfigureCors();
 

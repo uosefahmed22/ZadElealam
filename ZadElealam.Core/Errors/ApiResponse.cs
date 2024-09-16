@@ -24,6 +24,13 @@ namespace ZadElealam.Core.Errors
             StatusCode = statusCode;
             Message = message ?? GetDefaultMessageForStatusCode(StatusCode);
         }
+        public ApiResponse(int? statusCode, object? data)
+        {
+            StatusCode = statusCode;
+            Message = GetDefaultMessageForStatusCode(StatusCode);
+            Data = data;
+        }
+
 
         public ApiResponse(int? statusCode, string? message, object? data)
         {
