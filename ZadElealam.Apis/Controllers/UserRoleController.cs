@@ -7,7 +7,7 @@ using System;
 using System.Security.Claims;
 using ZadElealam.Core.IServices.Auth;
 using ZadElealam.Core.Models.Auth;
-using ZadElealam.Repository;
+using ZadElealam.Repository.Data;
 
 namespace ZadElealam.Apis.Controllers
 {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZadElealam.Core.Models;
-using ZadElealam.Repository;
+using ZadElealam.Repository.Data;
 
 namespace ZadElealam.Core.IRepository
 {

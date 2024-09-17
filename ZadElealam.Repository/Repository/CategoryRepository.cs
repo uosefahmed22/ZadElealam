@@ -10,6 +10,7 @@ using ZadElealam.Core.Errors;
 using ZadElealam.Core.IRepository;
 using ZadElealam.Core.IServices;
 using ZadElealam.Core.Models;
+using ZadElealam.Repository.Data;
 
 namespace ZadElealam.Repository.Repository
 {

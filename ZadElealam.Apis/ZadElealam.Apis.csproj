@@ -20,4 +20,8 @@
     <ProjectReference Include="..\ZadElealam.Repository\ZadElealam.Repository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

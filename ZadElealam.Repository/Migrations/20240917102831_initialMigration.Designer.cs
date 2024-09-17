@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ZadElealam.Repository;
+using ZadElealam.Repository.Data;
 
 #nullable disable
 
 namespace ZadElealam.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240916114845_ThumnailsNullable")]
-    partial class ThumnailsNullable
+    [Migration("20240917102831_initialMigration")]
+    partial class initialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,6 +158,28 @@ namespace ZadElealam.Repository.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ZadElealam.Core.Models.Answer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("Answers");
+                });
+
             modelBuilder.Entity("ZadElealam.Core.Models.Auth.AppUser", b =>
                 {
                     b.Property<string>("Id")
@@ -294,6 +316,118 @@ namespace ZadElealam.Repository.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("ZadElealam.Core.Models.Exam", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PlaylistId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlaylistId");
+
+                    b.ToTable("Exams");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.Question", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CorrectAnswerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ExamId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExamId");
+
+                    b.ToTable("Questions");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.StudentExam", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CompletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ExamId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsPassed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExamId");
+
+                    b.ToTable("StudentExams");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.StudentVideoProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VideoId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("WatchedDuration")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VideoId");
+
+                    b.ToTable("StudentVideoProgresses");
+                });
+
             modelBuilder.Entity("ZadElealam.Core.Models.YouTubePlaylist", b =>
                 {
                     b.Property<int>("Id")
@@ -415,6 +549,58 @@ namespace ZadElealam.Repository.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ZadElealam.Core.Models.Answer", b =>
+                {
+                    b.HasOne("ZadElealam.Core.Models.Question", "Question")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.Exam", b =>
+                {
+                    b.HasOne("ZadElealam.Core.Models.YouTubePlaylist", "Playlist")
+                        .WithMany()
+                        .HasForeignKey("PlaylistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Playlist");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.Question", b =>
+                {
+                    b.HasOne("ZadElealam.Core.Models.Exam", null)
+                        .WithMany("Questions")
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.StudentExam", b =>
+                {
+                    b.HasOne("ZadElealam.Core.Models.Exam", "Exam")
+                        .WithMany()
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exam");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.StudentVideoProgress", b =>
+                {
+                    b.HasOne("ZadElealam.Core.Models.YouTubeVideo", "Video")
+                        .WithMany("StudentProgresses")
+                        .HasForeignKey("VideoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Video");
+                });
+
             modelBuilder.Entity("ZadElealam.Core.Models.YouTubePlaylist", b =>
                 {
                     b.HasOne("ZadElealam.Core.Models.Category", "Category")
@@ -442,9 +628,24 @@ namespace ZadElealam.Repository.Migrations
                     b.Navigation("Playlists");
                 });
 
+            modelBuilder.Entity("ZadElealam.Core.Models.Exam", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.Question", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
             modelBuilder.Entity("ZadElealam.Core.Models.YouTubePlaylist", b =>
                 {
                     b.Navigation("Videos");
+                });
+
+            modelBuilder.Entity("ZadElealam.Core.Models.YouTubeVideo", b =>
+                {
+                    b.Navigation("StudentProgresses");
                 });
 #pragma warning restore 612, 618
         }

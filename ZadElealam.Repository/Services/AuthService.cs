@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using ZadElealam.Core.Errors;
 using ZadElealam.Core.IServices.Auth;
 using ZadElealam.Core.Models.Auth;
+using ZadElealam.Repository.Data;
 
 
 namespace ZadElealam.Repository.Services
