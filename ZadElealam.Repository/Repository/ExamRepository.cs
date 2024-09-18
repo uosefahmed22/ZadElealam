@@ -74,19 +74,19 @@ namespace ZadElealam.Repository.Repository
                 }
 
                 int correctAnswers = 0;
-                foreach (var question in exam.Questions)
+                foreach (var question in exam.Questions.Select((q, index) => new { q, index }))
                 {
-                    if (studentAnswers.TryGetValue(question.Id, out int answerId)) // Error handling for missing question IDs
+                    if (studentAnswers.TryGetValue(question.index, out int answerId))
                     {
-                        Console.WriteLine($"Question ID: {question.Id}, Student Answer: {answerId}, Correct Answer: {question.CorrectAnswerId}");
-                        if (question.CorrectAnswerId == answerId)
+                        Console.WriteLine($"Question Index: {question.index}, Student Answer: {answerId}, Correct Answer: {question.q.CorrectAnswerId}");
+                        if (question.q.CorrectAnswerId == answerId)
                         {
                             correctAnswers++;
                         }
                     }
                     else
                     {
-                        return new ApiResponse(400, $"إجابة السؤال رقم {question.Id} مفقودة.");
+                        return new ApiResponse(400, $"إجابة السؤال رقم {question.index} مفقودة.");
                     }
                 }
 
@@ -118,14 +118,6 @@ namespace ZadElealam.Repository.Repository
                     : $"للأسف، لم تنجح في الامتحان هذه المرة. نتيجتك {score}%. نتمنى لك النجاح في المرة القادمة.";
 
                 return new ApiResponse(200, resultMessage);
-            }
-            catch (ArgumentNullException ex)
-            {
-                return new ApiResponse(400, $"خطأ في المدخلات: {ex.Message}");
-            }
-            catch (DbUpdateException ex)
-            {
-                return new ApiResponse(500, $"خطأ في تحديث قاعدة البيانات: {ex.Message}");
             }
             catch (Exception ex)
             {
