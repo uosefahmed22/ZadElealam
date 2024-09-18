@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ZadElealam.Core.Dto;
+using ZadElealam.Core.Errors;
+using ZadElealam.Core.Models;
+
+namespace ZadElealam.Core.IRepository
+{
+    public interface IFeedbackAndFavorities
+    {
+        //Feedback
+        Task<ApiResponse> AddFeedback(string UserId,FeedbackDto feedback);
+        Task<ApiResponse> GetAllFeedback();
+        Task<ApiResponse> DeleteFeedback(int id, string UserId);
+        Task<ApiResponse> UpdateFeedback(int Id, string UserId, FeedbackDto feedback);
+        //Favorities
+        Task<ApiResponse> AddFavorities(string UserId, int PlayListId);
+        Task<ApiResponse> GetAllFavorities(string UserId);
+        Task<ApiResponse> DeleteFavorities(int id, string UserId);
+    }
+}

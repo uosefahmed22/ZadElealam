@@ -41,5 +41,7 @@ namespace ZadElealam.Repository.Data
         public DbSet<Question> Questions { get; set; }
         public DbSet<Answer> Answers { get; set; }
         public DbSet<StudentExam> StudentExams { get; set; }
+        public DbSet<Favorities> Favorities { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
     }
 }
