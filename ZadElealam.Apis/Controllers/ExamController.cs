@@ -26,7 +26,7 @@ namespace ZadElealam.Apis.Controllers
             _examRepository = examRepository;
             _userManager = userManager;
         }
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPost("create-exam")]
         public async Task<IActionResult> CreateExam([FromBody] CreateExamDto examDto)
         {
@@ -45,6 +45,7 @@ namespace ZadElealam.Apis.Controllers
 
             return BadRequest(new ApiResponse(400, result.Message));
         }
+        
         [HttpGet("get-exam-by-playlist")]
         public async Task<IActionResult> GetExamByPlaylistId(int playlistId)
         {
@@ -92,7 +93,8 @@ namespace ZadElealam.Apis.Controllers
             }
             return BadRequest(result);
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpDelete("delete-exam")]
         public async Task<IActionResult> DeleteExam(int examId)
         {
@@ -103,6 +105,7 @@ namespace ZadElealam.Apis.Controllers
             }
             return BadRequest(result);
         }
+        
         [HttpGet("get-exam-by-id")]
         public async Task<IActionResult> GetExamById(int examId)
         {
@@ -113,6 +116,5 @@ namespace ZadElealam.Apis.Controllers
             }
             return BadRequest(result);
         }
-
     }
 }

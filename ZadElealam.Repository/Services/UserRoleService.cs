@@ -202,7 +202,6 @@ namespace ZadElealam.Repository.Services
 
             var userDto = new UserDto
             {
-                UserId = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
                 ImageUrl = user.ImageUrl

@@ -1,5 +1,7 @@
 ﻿using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +23,7 @@ namespace ZadElealam.Apis.Controllers
         {
             _playlistRepository = playlistRepository;
         }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPost("addplaylist")]
         public async Task<IActionResult> AddPlaylist([FromBody] AddPlaylistRequest addPlaylistRequest)
         {
@@ -46,6 +49,7 @@ namespace ZadElealam.Apis.Controllers
             return Ok(videos);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpDelete("deleteplaylist")]
         public async Task<IActionResult> DeletePlaylist(int playlistId)
         {
@@ -53,6 +57,7 @@ namespace ZadElealam.Apis.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPost("updatevideoprogress")]
         public async Task<IActionResult> UpdateVideoProgress([FromBody] UpdateVideoProgressRequest updateVideoProgressRequest)
         {
@@ -63,6 +68,5 @@ namespace ZadElealam.Apis.Controllers
             var response = await _playlistRepository.UpdateVideoProgressAsync(updateVideoProgressRequest.StudentId, updateVideoProgressRequest.VideoId, updateVideoProgressRequest.WatchedDuration);
             return Ok(response);
         }
-
     }
 }

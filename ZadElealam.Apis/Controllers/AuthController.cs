@@ -112,12 +112,16 @@ namespace ZadElealam.Apis.Controllers
         [HttpGet("confirm-email")]
         public async Task<IActionResult> ConfirmEmail(string userId, string confirmationToken)
         {
-            var result = await _authService.ConfirmUserEmailAsync(userId, confirmationToken);
-            if (!result)
+            var result = await _authService.ConfirmUserEmailAsync(userId!, confirmationToken!);
+
+            if (result)
             {
-                return BadRequest();
+                return RedirectPermanent(@"https://www.google.com/webhp?authuser=0");
             }
-            return Ok();
+            else
+            {
+                return BadRequest("Failed to confirm user email.");
+            }
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ZadElealam.Core.Dto;
 using ZadElealam.Core.IRepository;
@@ -16,12 +18,14 @@ namespace ZadElealam.Apis.Controllers
         {
             _categoryRepository = categoryRepository;
         }
+
         [HttpGet("getallCategories")]
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryRepository.GetAllCategoery();
             return Ok(categories);
         }
+        
         [HttpGet("getCategoryById")]
         public async Task<IActionResult> GetCategoryById(int CategoryId)
         {
@@ -32,6 +36,8 @@ namespace ZadElealam.Apis.Controllers
             }
             return Ok(category);
         }
+        
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPost("addCategory")]
         public async Task<IActionResult> AddCategory([FromForm] CategoryDto category)
         {
@@ -42,6 +48,8 @@ namespace ZadElealam.Apis.Controllers
             }
             return Ok(response);
         }
+        
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPut("updateCategory")]
         public async Task<IActionResult> UpdateCategory(int categoryId, [FromForm] CategoryDto category)
         {
@@ -52,6 +60,8 @@ namespace ZadElealam.Apis.Controllers
             }
             return Ok(response);
         }
+        
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpDelete("deleteCategory")]
         public async Task<IActionResult> DeleteCategory(int categoryId)
         {
