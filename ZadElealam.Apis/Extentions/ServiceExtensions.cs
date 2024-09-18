@@ -16,6 +16,7 @@ using ZadElealam.Core.IRepository;
 using ZadElealam.Repository.Repository;
 using Google.Apis.YouTube.v3.Data;
 using ZadElealam.Repository.Data;
+using System.Text.Json;
 
 namespace ZadElealam.Apis.Extentions
 {
@@ -51,11 +52,38 @@ namespace ZadElealam.Apis.Extentions
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(jwt =>
-            {
-                jwt.SaveToken = true;
-                jwt.TokenValidationParameters = tokenvalidationParameters;
-            });
+           .AddJwtBearer(jwt =>
+           {
+               jwt.SaveToken = true;
+               jwt.TokenValidationParameters = tokenvalidationParameters;
+               jwt.Events = new JwtBearerEvents
+               {
+                   OnChallenge = context =>
+                   {
+                       context.HandleResponse();
+                       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                       context.Response.ContentType = "application/json";
+                       var result = JsonSerializer.Serialize(new
+                       {
+                           StatusCode = StatusCodes.Status401Unauthorized,
+                           Message = "You are not authorized to access this resource."
+                       });
+                       return context.Response.WriteAsync(result);
+                   },
+                   OnForbidden = context =>
+                   {
+                       context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                       context.Response.ContentType = "application/json";
+                       var result = JsonSerializer.Serialize(new
+                       {
+                           StatusCode = StatusCodes.Status403Forbidden,
+                           Message = "You do not have permission to access this resource."
+                       });
+                       return context.Response.WriteAsync(result);
+                   }
+               };
+           });
+
 
             services.AddIdentity<AppUser, IdentityRole>(options =>
                 options.SignIn.RequireConfirmedAccount = true)

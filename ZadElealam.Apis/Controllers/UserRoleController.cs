@@ -42,7 +42,7 @@ namespace ZadElealam.Apis.Controllers
             return Ok(roles);
         }
         
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "AAdmin")]
         [HttpPost("CreateRole")]
         public async Task<IActionResult> CreateRole(string roleName)
         {
