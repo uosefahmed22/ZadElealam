@@ -11,8 +11,8 @@ namespace ZadElealam.Core.IRepository
 {
     public interface ICategoryRepository
     {
-        Task<IEnumerable<object>> GetAllCategoery();
-        Task<object> GetCategoeryById(int id);
+        Task<ApiResponse> GetAllCategoery();
+        Task<ApiResponse> GetCategoeryById(int id);
         Task<ApiResponse> AddCategoery(CategoryDto categoery);
         Task<ApiResponse> UpdateCategoery(int categoeryId, CategoryDto categoery);
         Task<ApiResponse> DeleteCategoery(int id);

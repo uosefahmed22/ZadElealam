@@ -146,10 +146,6 @@ namespace ZadElealam.Repository.Repository
             await UpdateProgress(studentId, videoId, watchedDuration);
             return new ApiResponse(200, "تم تحديث التقدم بنجاح.");
         }
-
-
-
-
         private string ExtractYouTubePlaylistId(string playlistUrl)
         {
             // Code to extract Playlist ID from URL

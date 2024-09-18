@@ -8,8 +8,8 @@ namespace ZadElealam.Apis.Helpers
     {
         public MappingProfile()
         {
-            CreateMap<CategoryDto, Category>();
-            CreateMap< YouTubeVideo, YouTubeVideoDto>();
+            CreateMap<CategoryDto, Category>().ReverseMap();
+            CreateMap< YouTubeVideo, YouTubeVideoDto>().ReverseMap();
             CreateMap<Feedback, FeedbackDto>().ReverseMap();
         }
     }

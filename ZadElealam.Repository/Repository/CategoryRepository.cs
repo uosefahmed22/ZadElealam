@@ -49,13 +49,8 @@ namespace ZadElealam.Repository.Repository
                         return new ApiResponse(400, fileResult.Item2);
                     }
                 }
-                var newCategory = new Category
-                {
-                    Name = categoery.Name,
-                    Description = categoery.Description,
-                    ImageUrl = categoery.ImageUrl
-                };
-                _dbContext.Categories.Add(newCategory);
+                var category = _mapper.Map<Category>(categoery);
+                await _dbContext.Categories.AddAsync(category);
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "Category Added Successfully");
             }
@@ -86,21 +81,11 @@ namespace ZadElealam.Repository.Repository
                 return new ApiResponse(400, ex.Message);
             }
         }
-        public async Task<IEnumerable<object>> GetAllCategoery()
+        public async Task<ApiResponse> GetAllCategoery()
         {
-            return await _dbContext.Categories
-                .Select(x => new
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Description = x.Description,
-                    ImageUrl = x.ImageUrl
-                })
-                .ToListAsync();
-        }
-        public async Task<object> GetCategoeryById(int id)
-        {
-            var result = await _dbContext
+            try
+            {
+                var result = await _dbContext
                 .Categories
                 .Select(x => new
                 {
@@ -108,8 +93,33 @@ namespace ZadElealam.Repository.Repository
                     Name = x.Name,
                     Description = x.Description,
                     ImageUrl = x.ImageUrl
-                }).FirstOrDefaultAsync(x => x.Id == id);
-            return result;
+                }).ToListAsync();
+                return new ApiResponse(200, result);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(400, ex.Message);
+            }
+        }
+        public async Task<ApiResponse> GetCategoeryById(int id)
+        {
+            try
+            {
+                var result = await _dbContext.Categories
+                .Where(x => x.Id == id)
+                .Select(x => new
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                    ImageUrl = x.ImageUrl
+                }).FirstOrDefaultAsync();
+                return new ApiResponse(200, result);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(400, ex.Message);
+            }
         }
         public async Task<ApiResponse> UpdateCategoery(int categoeryId, CategoryDto categoery)
         {
@@ -136,13 +146,7 @@ namespace ZadElealam.Repository.Repository
 
                     categoery.ImageUrl = fileResult.Item2;
                 }
-
-                categoery.Name ??= existingCategory.Name;
-                categoery.ImageUrl ??= existingCategory.ImageUrl;
-                categoery.Description ??= existingCategory.Description;
-
                 _mapper.Map(categoery, existingCategory);
-
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "Category Updated Successfully");
             }

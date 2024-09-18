@@ -206,7 +206,21 @@ namespace ZadElealam.Repository.Repository
                 }
                 var exam = await _context.Exams
                     .Include(e => e.Questions)
-                    .ThenInclude(q => q.Answers)
+                    .Select(e => new
+                    {
+                        e.Id,
+                        e.Title,
+                        Questions = e.Questions.Select(q => new
+                        {
+                            q.Id,
+                            q.Text,
+                            Answers = q.Answers.Select(a => new
+                            {
+                                a.Id,
+                                a.Text
+                            }).ToList()
+                        }).ToList()
+                    })
                     .FirstOrDefaultAsync(e => e.Id == examId);
                 return new ApiResponse(200, exam);
             }

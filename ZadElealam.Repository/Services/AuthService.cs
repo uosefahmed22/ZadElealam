@@ -73,9 +73,15 @@ namespace ZadElealam.Repository.Services
                 UserName = model.Email,
                 EmailConfirmed = false
             };
+            
+
             var isCreated = await _userManager.CreateAsync(newUser, model.Password);
             if (isCreated.Succeeded)
             {
+                if (!await _roleManager.RoleExistsAsync("User"))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("User"));
+                }
                 await _userManager.AddToRoleAsync(newUser, "User");
                 var jwtToken = await GenerateJwt(newUser);
                 var EmailConfirmation = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
@@ -105,30 +111,41 @@ namespace ZadElealam.Repository.Services
         }
         public async Task<ApiResponse> LoginAsync(Login model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
+            try
             {
-                return new ApiResponse { StatusCode = 400, Message = "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    return new ApiResponse(404, "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+                }
+                if (!await _userManager.CheckPasswordAsync(user, model.Password))
+                {
+                    return new ApiResponse(400, "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+                }
+                //if(!user.EmailConfirmed)
+                //{
+                //    return new ApiResponse(400, "الرجاء تأكيد البريد الإلكتروني الخاص بك");
+                //}
+                var jwtToken = await GenerateJwt(user);
+                return new ApiResponse(200, "تم تسجيل الدخول بنجاح", jwtToken);
             }
-            if (!await _userManager.CheckPasswordAsync(user, model.Password))
+            catch (Exception ex)
             {
-                return new ApiResponse { StatusCode = 400, Message = "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
+                return new ApiResponse(500, ex.Message);
             }
-            var jwtToken = await GenerateJwt(user);
-            return new ApiResponse { StatusCode = 200, Message = "تم تسجيل الدخول بنجاح", Data = jwtToken };
         }
         public async Task<ApiResponse> ChangePasswordAsync(ChangePassword model, string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                return new ApiResponse { StatusCode = 400, Message = "البريد الإلكتروني غير موجود" };
+                return new ApiResponse(404, "المستخدم غير موجود");
             }
 
             var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
             if (result.Succeeded)
             {
-                return new ApiResponse { StatusCode = 200, Message = "تم تغيير كلمة المرور بنجاح" };
+                return new ApiResponse(200, "تم تغيير كلمة المرور بنجاح");
             }
 
             var errors = result.Errors.Select(e => e.Description).ToList();
@@ -146,115 +163,157 @@ namespace ZadElealam.Repository.Services
         }
         public async Task<ApiResponse> ForgetPassword(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
+            try
             {
-                return new ApiResponse { StatusCode = 400, Message = "البريد الإلكتروني غير موجود" };
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    return new ApiResponse { StatusCode = 400, Message = "البريد الإلكتروني غير موجود" };
+                }
+                var otp = _otpService.GenerateOtp(email);
+                var emailBody = $"<h1>كود التحقق</h1><p>كود التحقق الخاص بك هو {otp}</p>";
+                await SendEmailAsync(email,
+                       "كود التحقق",
+                       $"كود التحقق الخاص بك هو: {otp}هذا الرمز صالح لمدة 5 دقائق فقط.");
+                return new ApiResponse(200, "تم إرسال رمز التحقق إلى بريدك الإلكتروني");
             }
-            var otp = _otpService.GenerateOtp(email);
-            var emailBody = $"<h1>كود التحقق</h1><p>كود التحقق الخاص بك هو {otp}</p>";
-            await SendEmailAsync(email,
-                   "كود التحقق",
-                   $"كود التحقق الخاص بك هو: {otp}هذا الرمز صالح لمدة 5 دقائق فقط.");
-            return new ApiResponse(200, "تم إرسال رمز التحقق إلى بريدك الإلكتروني");
+            catch (Exception ex)
+            {
+                return new ApiResponse(500, ex.Message);
+            }
         }
         public async Task<ApiResponse> ResendConfirmationEmailAsync(string email, Func<string, string, string> generateCallBackUrl)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
+            try
             {
-                return new ApiResponse { StatusCode = 400, Message = "البريد الإلكتروني غير موجود" };
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    return new ApiResponse { StatusCode = 400, Message = "البريد الإلكتروني غير موجود" };
+                }
+                var EmailConfirmation = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var callBackUrl = generateCallBackUrl(EmailConfirmation, user.Id);
+                var emailBody = $"<h1>عزيزي {user.FullName}</h1><p>شكرا لتسجيلك في موقعنا</p><p>لتأكيد حسابك اضغط على الرابط التالي</p><a href='{callBackUrl}'>اضغط هنا</a>";
+                await SendEmailAsync(user.Email, "تأكيد البريد الإلكتروني", emailBody);
+                return new ApiResponse(200, "الرجاء تأكيد البريد الإلكتروني الخاص بك");
             }
-            var EmailConfirmation = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callBackUrl = generateCallBackUrl(EmailConfirmation, user.Id);
-            var emailBody = $"<h1>عزيزي {user.FullName}</h1><p>شكرا لتسجيلك في موقعنا</p><p>لتأكيد حسابك اضغط على الرابط التالي</p><a href='{callBackUrl}'>اضغط هنا</a>";
-            await SendEmailAsync(user.Email, "تأكيد البريد الإلكتروني", emailBody);
-            return new ApiResponse(200, "الرجاء تأكيد البريد الإلكتروني الخاص بك");
+            catch (Exception ex)
+            {
+                return new ApiResponse(500, ex.Message);
+            }
         }
         public async Task<ApiResponse> ResetPasswordAsync(ResetPassword model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
+            try
             {
-                return new ApiResponse(400, " المستخدم غير موجود.");
-            }
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    return new ApiResponse(400, " المستخدم غير موجود.");
+                }
 
-            if (!_cache.TryGetValue(model.Email, out bool isOtpValid) || !isOtpValid)
+                if (!_cache.TryGetValue(model.Email, out bool isOtpValid) || !isOtpValid)
+                {
+                    return new ApiResponse(400, "الرمز غير صالح.");
+                }
+
+                var isOldPasswordEqualNew = await _userManager.CheckPasswordAsync(user, model.Password);
+                if (isOldPasswordEqualNew)
+                {
+                    return new ApiResponse(400, "كلمة المرور الجديدة يجب أن تكون مختلفة عن كلمة المرور القديمة.");
+                }
+
+                var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, model.Password);
+                if (resetResult.Succeeded)
+                {
+                    return new ApiResponse(200, "لقد تم تغيير كلمة المرور بنجاح.");
+                }
+
+                var errorMessages = string.Join(", ", resetResult.Errors.Select(e => e.Description));
+                return new ApiResponse(500, $"حدث خطأ أثناء تغيير كلمة المرور: {errorMessages}");
+            }
+            catch (Exception ex)
             {
-                return new ApiResponse(400, "الرمز غير صالح.");
+                return new ApiResponse(500, ex.Message);
             }
-
-            var isOldPasswordEqualNew = await _userManager.CheckPasswordAsync(user, model.Password);
-            if (isOldPasswordEqualNew)
-            {
-                return new ApiResponse(400, "كلمة المرور الجديدة يجب أن تكون مختلفة عن كلمة المرور القديمة.");
-            }
-
-            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-
-            var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, model.Password);
-            if (resetResult.Succeeded)
-            {
-                return new ApiResponse(200, "لقد تم تغيير كلمة المرور بنجاح.");
-            }
-
-            var errorMessages = string.Join(", ", resetResult.Errors.Select(e => e.Description));
-            return new ApiResponse(500, $"حدث خطأ أثناء تغيير كلمة المرور: {errorMessages}");
         }
         public ApiResponse VerfiyOtp(VerifyOtp dto)
         {
-            var isValidOtp = _otpService.IsValidOtp(dto.Email, dto.Otp);
-            if (!isValidOtp)
+            try
             {
-                return new ApiResponse(400, "رمز التحقق غير صالح.");
+                var isValidOtp = _otpService.IsValidOtp(dto.Email, dto.Otp);
+                if (!isValidOtp)
+                {
+                    return new ApiResponse(400, "رمز التحقق غير صالح.");
+                }
+                return new ApiResponse(200, "رمز التحقق صالح.");
             }
-            return new ApiResponse(200, "رمز التحقق صالح.");
+            catch (Exception ex)
+            {
+                return new ApiResponse(500, ex.Message);
+            }
         }
 
         //Handle Token
         public async Task<ApiResponse> RefreshToken([FromBody] TokenRequest model)
         {
-            var result = await ValidateTokenAndRefreshJwt(model);
-            if (result == null)
+            try
             {
-                return new ApiResponse(400, "غير مصرح لك بالوصول لهذا التوكن");
+                var result = await ValidateTokenAndRefreshJwt(model);
+                if (result == null)
+                {
+                    return new ApiResponse(400, "غير مصرح لك بالوصول لهذا التوكن");
+                }
+                if (!result.Result)
+                {
+                    return new ApiResponse(400, $"{string.Join(", ", result.Errors)}");
+                }
+                return new ApiResponse(200, "تم تحديث التوكن بنجاح", result);
             }
-            if (!result.Result)
+            catch (Exception ex)
             {
-                return new ApiResponse(400,$"{string.Join(", ", result.Errors)}");
+                return new ApiResponse(500, ex.Message);
             }
-            return new ApiResponse(200,"تم تحديث التوكن بنجاح", result);
 
         }
         public async Task<ApiResponse> RevokeToken([FromBody] TokenRequest model)
         {
-            var result = await ValidateTokenAndRefreshJwt(model);
-            if (result == null)
+            try
             {
+                var result = await ValidateTokenAndRefreshJwt(model);
+                if (result == null)
+                {
+                    return new ApiResponse
+                    {
+                        Message = "غير مصرح لك بالوصول لهذا التوكن",
+                        StatusCode = 401
+                    };
+                }
+                var storedToken = await _dbContext.RefreshTokens.
+                    FirstOrDefaultAsync(x => x.Token == model.RefreshToken);
+                if (storedToken == null)
+                {
+                    return new ApiResponse
+                    {
+                        Message = "الرمز غير موجود",
+                        StatusCode = 404
+                    };
+                }
+                storedToken.IsRevoked = true;
+                _dbContext.RefreshTokens.Update(storedToken);
+                await _dbContext.SaveChangesAsync();
                 return new ApiResponse
                 {
-                    Message = "غير مصرح لك بالوصول لهذا التوكن",
-                    StatusCode = 401
+                    Message = "تم إلغاء التوكن بنجاح",
+                    StatusCode = 200
                 };
             }
-            var storedToken = await _dbContext.RefreshTokens.
-                FirstOrDefaultAsync(x => x.Token == model.RefreshToken);
-            if (storedToken == null)
+            catch (Exception ex)
             {
-                return new ApiResponse
-                {
-                    Message = "الرمز غير موجود",
-                    StatusCode = 404
-                };
+                return new ApiResponse(500, ex.Message);
             }
-            storedToken.IsRevoked = true;
-            _dbContext.RefreshTokens.Update(storedToken);
-            await _dbContext.SaveChangesAsync();
-            return new ApiResponse
-            {
-                Message = "تم إلغاء التوكن بنجاح",
-                StatusCode = 200
-            };
         }
 
         //Helper Methods

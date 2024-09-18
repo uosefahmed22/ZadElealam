@@ -11,14 +11,15 @@ namespace ZadElealam.Core.IServices.Auth
 {
     public interface IUserRoleService
     {
-        Task<IEnumerable<string>> GetRolesAsync();
+        Task<ApiResponse> GetRolesAsync();
         Task<ApiResponse> CreateRole(string roleName);
         Task<ApiResponse> DeleteRole(string roleName);
         Task<ApiResponse> AddUserToRole(string email, string roleName);
         Task<ApiResponse> RemoveUserFromRole(string email, string roleName);
-        Task<IEnumerable<string>> GetUsers();
-        Task<IEnumerable<string>> GetRolesByUser(string email);
+        Task<ApiResponse> GetUsers();
+        Task<ApiResponse> GetRolesByUser(string email);
         Task<ApiResponse> AddProfileImage(IFormFile? image, string? ImageUrl, string email);
         Task<ApiResponse> GetUser(string email);
+        Task<ApiResponse> DeleteUser(string email);
     }
 }

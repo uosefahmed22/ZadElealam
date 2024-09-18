@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
+using ZadElealam.Core.Errors;
 using ZadElealam.Core.IServices.Auth;
 using ZadElealam.Core.Models.Auth;
 using ZadElealam.Repository.Data;
@@ -90,6 +91,18 @@ namespace ZadElealam.Apis.Controllers
         {
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
             var result = await _userRoleService.GetUser(email);
+            return Ok(result);
+        }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpDelete("deleteUser")]
+        public async Task<IActionResult> DeleteUser()
+        {
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (email == null)
+            {
+                return BadRequest(new ApiResponse(400, "Invalid user"));
+            }
+            var result = await _userRoleService.DeleteUser(email);
             return Ok(result);
         }
 
