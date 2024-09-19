@@ -1,4 +1,4 @@
-﻿﻿# ZadEl3lm
+﻿﻿ZadEl3lm
 
 **ZadEl3lm** is an educational platform designed for learning Islamic studies, offering a variety of subjects like Fiqh, Sharia, and more. The platform provides a structured approach with video playlists, progress tracking, and certificates of appreciation for students upon completing courses.
 
