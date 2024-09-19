@@ -19,16 +19,10 @@
 5. **💬 Interaction and Q&A**  
    Allows interaction between students and teachers through comments and questions, enabling dynamic learning and feedback.
 
-6. **🖥️ User-Friendly Interface**  
-   Features a simple, responsive design that works seamlessly across all devices, including mobiles and desktops.
-
-7. **🔔 Notifications**  
-   Students receive notifications when they complete a course or when new content is available.
-
-8. **⭐ Course Rating System**  
+6. **⭐ Course Rating System**  
    Students can rate courses and leave feedback, helping to improve content quality and guide future learners.
 
-9. **📈 Personal Dashboard**  
+7. **📈 Personal Dashboard**  
    Each student has a personalized page displaying their enrolled courses, achievements, and earned certificates.
 
 ## 🧑‍💼 User Roles
