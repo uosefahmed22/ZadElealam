@@ -92,7 +92,7 @@ namespace ZadElealam.Apis.Controllers
         
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPatch("AddProfileImage")]
-        public async Task<IActionResult> AddProfileImage([FromForm] IFormFile image)
+        public async Task<IActionResult> AddProfileImage(IFormFile image)
         {
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
             var result = await _userRoleService.AddProfileImage(image, null, email);

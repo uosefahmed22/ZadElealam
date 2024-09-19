@@ -11,6 +11,7 @@ namespace ZadElealam.Apis.Helpers
             CreateMap<CategoryDto, Category>().ReverseMap();
             CreateMap< YouTubeVideo, YouTubeVideoDto>().ReverseMap();
             CreateMap<Feedback, FeedbackDto>().ReverseMap();
+            CreateMap<Feedback, UpdateFeedbackDto>().ReverseMap();
         }
     }
 }

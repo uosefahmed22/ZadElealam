@@ -60,12 +60,13 @@ namespace ZadElealam.Repository.Repository
                 return new ApiResponse(500, ex.Message);
             }
         }
-        public async Task<ApiResponse> GetAllFeedback()
+        public async Task<ApiResponse> GetAllFeedbackByPlaylist(int YouTubePlaylistId)
         {
             try
             {
                 var feedbacks = await _dbContext
                     .Feedbacks
+                    .Where(f => f.YouTubePlaylistId == YouTubePlaylistId)
                     .Select(f => new
                     {
                         f.Id,
@@ -85,19 +86,17 @@ namespace ZadElealam.Repository.Repository
                 return new ApiResponse(500, ex.Message);
             }
         }
-        public async Task<ApiResponse> UpdateFeedback(int Id, string UserId, FeedbackDto feedback)
+        public async Task<ApiResponse> UpdateFeedback(UpdateFeedbackDto model,string userId, int id)
         {
             try
             {
-                var feedbackExist = await _dbContext.Feedbacks.FirstOrDefaultAsync(f => f.Id == Id && f.UserId == UserId);
+                var feedbackExist = await _dbContext.Feedbacks
+                    .FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId);
                 if (feedbackExist == null)
                 {
                     return new ApiResponse(404, "لا يوجد تقييم");
                 }
-
-                var mapped = _mapper.Map(feedback, feedbackExist);
-                mapped.UserId = UserId;
-
+                _mapper.Map(model, feedbackExist);
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم تحديث التقييم بنجاح");
             }
@@ -150,7 +149,7 @@ namespace ZadElealam.Repository.Repository
                 return new ApiResponse(500, ex.Message);
             }
         }
-        public async Task<ApiResponse> GetAllFavorities(string UserId)
+        public async Task<ApiResponse> GetAllFavoritiesForUser(string UserId)
         {
             try
             {

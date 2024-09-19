@@ -13,12 +13,12 @@ namespace ZadElealam.Core.IRepository
     {
         //Feedback
         Task<ApiResponse> AddFeedback(string UserId,FeedbackDto feedback);
-        Task<ApiResponse> GetAllFeedback();
+        Task<ApiResponse> GetAllFeedbackByPlaylist(int YouTubePlaylistId);
         Task<ApiResponse> DeleteFeedback(int id, string UserId);
-        Task<ApiResponse> UpdateFeedback(int Id, string UserId, FeedbackDto feedback);
+        Task<ApiResponse> UpdateFeedback(UpdateFeedbackDto model, string userId, int id);
         //Favorities
         Task<ApiResponse> AddFavorities(string UserId, int PlayListId);
-        Task<ApiResponse> GetAllFavorities(string UserId);
+        Task<ApiResponse> GetAllFavoritiesForUser(string UserId);
         Task<ApiResponse> DeleteFavorities(int id, string UserId);
     }
 }

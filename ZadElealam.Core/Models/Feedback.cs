@@ -12,6 +12,8 @@ namespace ZadElealam.Core.Models
         public string UserId { get; set; }
         public string FeedbackMessage { get; set; }
         public int Rating { get; set; }
+        public int YouTubePlaylistId { get; set; }
+        public YouTubePlaylist YouTubePlaylist { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
     }
 }

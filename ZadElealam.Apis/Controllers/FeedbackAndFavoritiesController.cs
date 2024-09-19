@@ -44,10 +44,10 @@ namespace ZadElealam.Apis.Controllers
             return Ok(result);
         }
 
-        [HttpGet("getallfeedback")]
-        public async Task<IActionResult> GetAllFeedback()
+        [HttpGet("getallfeedbackbyplaylist")]
+        public async Task<IActionResult> GetAllFeedback(int YouTubePlaylistId)
         {
-            var result = await _feedbackAndFavorities.GetAllFeedback();
+            var result = await _feedbackAndFavorities.GetAllFeedbackByPlaylist(YouTubePlaylistId);
             return Ok(result);
         }
 
@@ -67,7 +67,7 @@ namespace ZadElealam.Apis.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPut("updatefeedback")]
-        public async Task<IActionResult> UpdateFeedback(int feedbackId, FeedbackDto feedback)
+        public async Task<IActionResult> UpdateFeedback(int feedbackId, UpdateFeedbackDto feedback)
         {
             if (!ModelState.IsValid)
             {
@@ -79,7 +79,7 @@ namespace ZadElealam.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
-            var result = await _feedbackAndFavorities.UpdateFeedback(feedbackId, user.Id, feedback);
+            var result = await _feedbackAndFavorities.UpdateFeedback(feedback, user.Id, feedbackId);
             return Ok(result);
         }
 
@@ -111,7 +111,7 @@ namespace ZadElealam.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
-            var result = await _feedbackAndFavorities.GetAllFavorities(user.Id);
+            var result = await _feedbackAndFavorities.GetAllFavoritiesForUser(user.Id);
             return Ok(result);
         }
 
