@@ -132,6 +132,7 @@ namespace ZadElealam.Apis.Extentions
             services.AddScoped<IExamRepository, ExamRepository>();
             services.AddScoped<ICertificateService, CertificateService>();
             services.AddScoped<IFeedbackAndFavorities, FeedbackAndFavorities>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
             // Configure CORS using the extension method
             services.ConfigureCors();
 

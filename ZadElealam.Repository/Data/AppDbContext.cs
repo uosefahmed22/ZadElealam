@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using ZadElealam.Core.Models;
@@ -20,17 +21,7 @@ namespace ZadElealam.Repository.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Question>()
-                .HasMany(q => q.Answers)
-                .WithOne(a => a.Question)
-                .HasForeignKey(a => a.QuestionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Exam>()
-                .HasMany(e => e.Questions)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<YouTubePlaylist> YouTubePlaylists { get; set; }
@@ -43,5 +34,6 @@ namespace ZadElealam.Repository.Data
         public DbSet<StudentExam> StudentExams { get; set; }
         public DbSet<Favorities> Favorities { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
     }
 }
