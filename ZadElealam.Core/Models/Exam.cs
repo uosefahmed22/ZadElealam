@@ -14,7 +14,6 @@ namespace ZadElealam.Core.Models
 
         [System.Text.Json.Serialization.JsonIgnore]
         public YouTubePlaylist Playlist { get; set; }
-
         public ICollection<Question> Questions { get; set; }
     }
 

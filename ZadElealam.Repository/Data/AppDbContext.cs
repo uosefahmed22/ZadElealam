@@ -35,5 +35,6 @@ namespace ZadElealam.Repository.Data
         public DbSet<Favorities> Favorities { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Enrollment> Enrollments { get; set; }
     }
 }

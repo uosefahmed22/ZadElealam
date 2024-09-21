@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ZadElealam.Repository.Data;
 
@@ -11,9 +12,11 @@ using ZadElealam.Repository.Data;
 namespace ZadElealam.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240921121910_Update_url")]
+    partial class Update_url
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -313,30 +316,6 @@ namespace ZadElealam.Repository.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("ZadElealam.Core.Models.Enrollment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("PlayListId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlayListId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Enrollments");
-                });
-
             modelBuilder.Entity("ZadElealam.Core.Models.Exam", b =>
                 {
                     b.Property<int>("Id")
@@ -386,6 +365,13 @@ namespace ZadElealam.Repository.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FeedbackMessage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -532,9 +518,6 @@ namespace ZadElealam.Repository.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<float>("CourseHours")
-                        .HasColumnType("real");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -549,9 +532,6 @@ namespace ZadElealam.Repository.Migrations
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("VideosCount")
-                        .HasColumnType("int");
 
                     b.Property<string>("YouTubePlaylistId")
                         .IsRequired()
@@ -667,29 +647,10 @@ namespace ZadElealam.Repository.Migrations
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("ZadElealam.Core.Models.Enrollment", b =>
-                {
-                    b.HasOne("ZadElealam.Core.Models.YouTubePlaylist", "PlayList")
-                        .WithMany()
-                        .HasForeignKey("PlayListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ZadElealam.Core.Models.Auth.AppUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PlayList");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ZadElealam.Core.Models.Exam", b =>
                 {
                     b.HasOne("ZadElealam.Core.Models.YouTubePlaylist", "Playlist")
-                        .WithMany("Exams")
+                        .WithMany()
                         .HasForeignKey("PlaylistId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -777,8 +738,6 @@ namespace ZadElealam.Repository.Migrations
 
             modelBuilder.Entity("ZadElealam.Core.Models.YouTubePlaylist", b =>
                 {
-                    b.Navigation("Exams");
-
                     b.Navigation("Videos");
                 });
 

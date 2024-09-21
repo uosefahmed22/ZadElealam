@@ -55,15 +55,21 @@ namespace ZadElealam.Repository.Repository
                 Description = youtubePlaylist.Description,
                 YouTubePlaylistId = playlistId,
                 CategoryId = categoryId,
+                Url = $"https://www.youtube.com/playlist?list={playlistId}",
+                VideosCount = youtubePlaylist.Videos.Count,
+                ThumbnailUrl = youtubePlaylist.ThumbnailUrl,
+                CourseHours = (float)youtubePlaylist.Videos.Sum(v => v.Duration.TotalHours),
                 Videos = youtubePlaylist.Videos.Select(video => new YouTubeVideo
                 {
                     Title = video.Title,
                     Description = video.Description,
                     YouTubeVideoId = video.YouTubeVideoId,
                     ThumbnailUrl = video.ThumbnailUrl,
-                    Duration = video.Duration
+                    Duration = video.Duration,
+                    Url = video.Url
                 }).ToList()
             };
+
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -89,7 +95,10 @@ namespace ZadElealam.Repository.Repository
                                               Id = p.Id,
                                               Title = p.Title,
                                               Description = p.Description,
-                                              ThumbnailUrl = p.Videos.FirstOrDefault().ThumbnailUrl
+                                              ThumbnailUrl = p.Videos.FirstOrDefault().ThumbnailUrl,
+                                              Url = p.Url,
+                                              VideosCount = p.VideosCount,
+                                              CourseHours = p.CourseHours
                                           })
                                           .ToListAsync();
 
@@ -109,7 +118,8 @@ namespace ZadElealam.Repository.Repository
                                            Id = v.Id,
                                            Title = v.Title,
                                            Duration = v.Duration,
-                                           ThumbnailUrl = v.ThumbnailUrl
+                                           ThumbnailUrl = v.ThumbnailUrl,
+                                           Url = v.Url
                                        })
                                        .ToListAsync();
 
@@ -131,6 +141,7 @@ namespace ZadElealam.Repository.Repository
             await _context.SaveChangesAsync();
             return new ApiResponse(200, "تم حذف قائمة التشغيل بنجاح.");
         }
+        
         public async Task<ApiResponse> UpdateVideoProgressAsync(string studentId, int videoId, TimeSpan watchedDuration)
         {
             var video = await _context.YouTubeVideos.FindAsync(videoId);
@@ -146,9 +157,114 @@ namespace ZadElealam.Repository.Repository
             await UpdateProgress(studentId, videoId, watchedDuration);
             return new ApiResponse(200, "تم تحديث التقدم بنجاح.");
         }
+        
+        public async Task<ApiResponse> GetErollmentCourses(string studentId)
+        {
+            var courses = await _context.Enrollments
+                                       .Where(e => e.UserId == studentId)
+                                       .Select(e => new
+                                       {
+                                           Id = e.PlayListId,
+                                           Title = e.PlayList.Title,
+                                           Description = e.PlayList.Description,
+                                           ThumbnailUrl = e.PlayList.Videos.FirstOrDefault().ThumbnailUrl,
+                                           Url = e.PlayList.Url
+                                       })
+                                       .ToListAsync();
+
+            if (courses == null || !courses.Any())
+            {
+                return new ApiResponse(200, "لم يتم العثور على دورات لهذا المستخدم.");
+            }
+
+            return new ApiResponse(200, courses);
+        }
+        public async Task<ApiResponse> EnrollToCourse(string studentId, int playlistId)
+        {
+            try
+            {
+                if (await _context.Enrollments.AnyAsync(e => e.UserId == studentId && e.PlayListId == playlistId))
+                {
+                    return new ApiResponse(409, "أنت مسجل بالفعل في هذه الدورة.");
+                }
+
+                if (!await _context.YouTubePlaylists.AnyAsync(p => p.Id == playlistId))
+                {
+                    return new ApiResponse(404, "قائمة التشغيل غير موجودة.");
+                }
+
+                var enrollment = new Enrollment
+                {
+                    PlayListId = playlistId,
+                    UserId = studentId
+                };
+
+                _context.Enrollments.Add(enrollment);
+                await _context.SaveChangesAsync();
+                return new ApiResponse(200, "تم التسجيل بنجاح.");
+            }
+            catch (Exception)
+            {
+                return new ApiResponse(500, "حدث خطأ أثناء التسجيل.");
+            }
+        }
+        
+        public async Task<ApiResponse> GetCourseById(int playlistId)
+        {
+            try
+            {
+                var playlist = await _context.YouTubePlaylists
+                    .Where(p => p.Id == playlistId)
+                    .Select(p => new
+                    {
+                        Title = p.Title,
+                        Description = p.Description,
+                        ThumbnailUrl = p.Videos.FirstOrDefault().ThumbnailUrl,
+                        Url = p.Url,
+                        VideosCount = p.VideosCount,
+                        CourseHours = p.CourseHours
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (playlist == null)
+                {
+                    return new ApiResponse
+                    {
+                        Message = "Playlist not found."
+                    };
+                }
+
+                var rating = await GetAverageRating(playlistId);
+
+                return new ApiResponse(200, new { playlist, rating });
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(500, ex.Message);
+            }
+        }
+
+        private async Task<double> GetAverageRating(int playlistId)
+        {
+            var ratings = await _context.Feedbacks
+                .Where(f => f.YouTubePlaylistId == playlistId)
+                .Select(f => f.Rating)
+                .ToListAsync();
+
+            int numberOfRatings = ratings.Count;
+
+            if (numberOfRatings == 0)
+            {
+                return 0; 
+            }
+
+            double totalRatings = ratings.Sum();
+            double averageRating = totalRatings / numberOfRatings;
+
+            return Math.Round(averageRating, 1);
+        }
         private string ExtractYouTubePlaylistId(string playlistUrl)
         {
-            // Code to extract Playlist ID from URL
             var uri = new Uri(playlistUrl);
             var query = HttpUtility.ParseQueryString(uri.Query);
             return query["list"];
@@ -162,8 +278,10 @@ namespace ZadElealam.Repository.Repository
             await Task.WhenAll(playlist, videos);
             return new YouTubePlaylist
             {
+                YouTubePlaylistId = playlistId,
                 Title = playlist.Result.Title,
                 Description = playlist.Result.Description,
+                Url = $"https://www.youtube.com/playlist?list={playlistId}",
                 Videos = videos.Result,
                 ThumbnailUrl = videos.Result.FirstOrDefault()?.ThumbnailUrl
             };

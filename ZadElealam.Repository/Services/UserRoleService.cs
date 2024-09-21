@@ -200,11 +200,14 @@ namespace ZadElealam.Repository.Services
                 return new ApiResponse(404, "المستخدم غير موجود");
             }
 
+            var roles = await _userManager.GetRolesAsync(user);
+
             var userDto = new UserDto
             {
                 Email = user.Email,
                 FullName = user.FullName,
-                ImageUrl = user.ImageUrl
+                ImageUrl = user.ImageUrl,
+                UserRole = (List<string>)roles 
             };
 
             return new ApiResponse(200, userDto);
@@ -218,9 +221,16 @@ namespace ZadElealam.Repository.Services
                     {
                         Email = x.Email,
                         FullName = x.FullName,
-                        ImageUrl = x.ImageUrl,
+                        ImageUrl = x.ImageUrl
                     })
                     .ToListAsync();
+
+                foreach (var user in users)
+                {
+                    var appUser = await _userManager.FindByEmailAsync(user.Email);
+                    user.UserRole = (List<string>)await _userManager.GetRolesAsync(appUser);
+                }
+
                 return new ApiResponse(200, users);
             }
             catch (Exception ex)

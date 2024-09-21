@@ -41,7 +41,7 @@ namespace ZadElealam.Repository.Repository
             {
                 Title = playlist.Snippet.Title,
                 Description = playlist.Snippet.Description,
-                YouTubePlaylistId = playlist.Id
+                YouTubePlaylistId = playlist.Id,
             };
         }
         public async Task<List<YouTubeVideo>> GetVideosFromPlaylistAsync(string playlistId)
@@ -65,6 +65,7 @@ namespace ZadElealam.Repository.Repository
                         Title = playlistItem.Snippet.Title,
                         Description = playlistItem.Snippet.Description,
                         YouTubeVideoId = playlistItem.ContentDetails.VideoId,
+                        Url = $"https://www.youtube.com/watch?v={playlistItem.ContentDetails.VideoId}",
                         ThumbnailUrl = playlistItem.Snippet.Thumbnails.Default__.Url,
                         Duration = await GetVideoDurationAsync(playlistItem.ContentDetails.VideoId)
                     });

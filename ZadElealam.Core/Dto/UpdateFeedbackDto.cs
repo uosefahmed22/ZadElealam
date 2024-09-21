@@ -8,7 +8,6 @@ namespace ZadElealam.Core.Dto
 {
     public class UpdateFeedbackDto
     {
-        public string FeedbackMessage { get; set; }
         public int Rating { get; set; }
     }
 }

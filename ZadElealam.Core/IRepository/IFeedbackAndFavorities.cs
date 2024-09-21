@@ -15,7 +15,7 @@ namespace ZadElealam.Core.IRepository
         Task<ApiResponse> AddFeedback(string UserId,FeedbackDto feedback);
         Task<ApiResponse> GetAllFeedbackByPlaylist(int YouTubePlaylistId);
         Task<ApiResponse> DeleteFeedback(int id, string UserId);
-        Task<ApiResponse> UpdateFeedback(UpdateFeedbackDto model, string userId, int id);
+        Task<ApiResponse> UpdateFeedback(int Rating, string userId, int FeedbackId);
         //Favorities
         Task<ApiResponse> AddFavorities(string UserId, int PlayListId);
         Task<ApiResponse> GetAllFavoritiesForUser(string UserId);

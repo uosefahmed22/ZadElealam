@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace ZadElealam.Core.Models
 {
-    public class Feedback
+    public class CourseDetails
     {
         public int Id { get; set; }
-        public string UserId { get; set; }
-        public int Rating { get; set; }
+        public int VideosCount { get; set; }
+        public int EnrollmentsCount { get; set; }
+        public float Rating { get; set; }
+        public YouTubePlaylist YouTubePlaylist{ get; set; }
         public int YouTubePlaylistId { get; set; }
-        public YouTubePlaylist YouTubePlaylist { get; set; }
     }
 }

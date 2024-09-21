@@ -11,6 +11,8 @@ namespace ZadElealam.Core.Dto
         public string Email { get; set; }
         public string FullName { get; set; }
         public string ImageUrl { get; set; }
+        public List<string> UserRole { get; set; }
+
     }
 
 }

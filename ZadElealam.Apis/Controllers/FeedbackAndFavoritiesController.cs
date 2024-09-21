@@ -67,7 +67,7 @@ namespace ZadElealam.Apis.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPut("updatefeedback")]
-        public async Task<IActionResult> UpdateFeedback(int feedbackId, UpdateFeedbackDto feedback)
+        public async Task<IActionResult> UpdateFeedback(int feedbackId, int NewRating, string userId)
         {
             if (!ModelState.IsValid)
             {
@@ -79,7 +79,7 @@ namespace ZadElealam.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
-            var result = await _feedbackAndFavorities.UpdateFeedback(feedback, user.Id, feedbackId);
+            var result = await _feedbackAndFavorities.UpdateFeedback(NewRating, user.Id, feedbackId);
             return Ok(result);
         }
 

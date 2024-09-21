@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using iText.Commons.Actions.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -70,9 +71,7 @@ namespace ZadElealam.Repository.Repository
                     .Select(f => new
                     {
                         f.Id,
-                        f.FeedbackMessage,
                         f.Rating,
-                        f.Date,
                     })
                     .ToListAsync();
                 if (!feedbacks.Any())
@@ -86,17 +85,18 @@ namespace ZadElealam.Repository.Repository
                 return new ApiResponse(500, ex.Message);
             }
         }
-        public async Task<ApiResponse> UpdateFeedback(UpdateFeedbackDto model,string userId, int id)
+        public async Task<ApiResponse> UpdateFeedback(int Rating, string userId, int FeedbackId)
         {
             try
             {
                 var feedbackExist = await _dbContext.Feedbacks
-                    .FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId);
+                    .FirstOrDefaultAsync(f => f.Id == FeedbackId && f.UserId == userId);
                 if (feedbackExist == null)
                 {
                     return new ApiResponse(404, "لا يوجد تقييم");
                 }
-                _mapper.Map(model, feedbackExist);
+                feedbackExist.Rating = Rating;
+                _dbContext.Feedbacks.Update(feedbackExist);
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم تحديث التقييم بنجاح");
             }
@@ -105,6 +105,7 @@ namespace ZadElealam.Repository.Repository
                 return new ApiResponse(500, ex.Message);
             }
         }
+        
 
         //Favorities
         public async Task<ApiResponse> AddFavorities(string UserId, int PlayListId)
@@ -164,7 +165,7 @@ namespace ZadElealam.Repository.Repository
                     .ToListAsync();
                 if (!favorities.Any())
                 {
-                    return new ApiResponse(404, "لا يوجد عناصر في القائمة المفضلة");
+                    return new ApiResponse(200, "لا يوجد عناصر في القائمة المفضلة");
                 }
                 return new ApiResponse(200, favorities);
             }
