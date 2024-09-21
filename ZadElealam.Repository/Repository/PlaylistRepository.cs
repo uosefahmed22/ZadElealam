@@ -98,10 +98,11 @@ namespace ZadElealam.Repository.Repository
                                               ThumbnailUrl = p.Videos.FirstOrDefault().ThumbnailUrl,
                                               Url = p.Url,
                                               VideosCount = p.VideosCount,
-                                              CourseHours = p.CourseHours
+                                              CourseHours = p.CourseHours,
+                                              Rating = GetAverageRating(p.Id).Result
                                           })
                                           .ToListAsync();
-
+            
             if (playlists == null || !playlists.Any())
             {
                 return new ApiResponse(404, "لم يتم العثور على قوائم تشغيل لهذه الفئة.");
